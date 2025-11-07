@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"strings"
 	"time"
-	"regexp"
 	"p2t/config"
 	"p2t/model"
 	"p2t/util/logger"
@@ -105,14 +104,6 @@ func (s *ConverterService) removeDuplicateImages(images []string) []string {
 
 	return result
 }
-		// 清洗内容中的 HTML 超链接标签
-		func (s *ConverterService) cleanHTMLLinks(content string) string {
-	// 移除 <a href="...">...</a> 标签
-			re := regexp.MustCompile(`<a\s+[^>]*href\s*=\s*["'][^"']*["'][^>]*>.*?</a>`)
-			cleaned := re.ReplaceAllString(content, "")
-	
-			return strings.TrimSpace(cleaned)
-		}
 
 // 将TGSou请求转换为PanSou请求
 func (s *ConverterService) ConvertTGSouToPanSou(tgReq *model.TGSouRequest) *model.PanSouRequest {
@@ -278,12 +269,11 @@ func (s *ConverterService) ConvertPanSouToTGSou(panResp *model.PanSouResponse) s
 			// 添加标题/说明
 			if note != "" {
 				cleanedNote := s.cleanTitle(note)
-				cleanedNote = s.cleanHTMLLinks(cleanedNote)
 				contentParts = append(contentParts, cleanedNote)
 			}
 			
 			// 添加链接
-			linkHTML := fmt.Sprintf(`🔗 <a href="%s">%s</a>`, cleanedURL, cleanedURL)
+			linkHTML := fmt.Sprintf(`链接： <a href="%s">%s</a>`, cleanedURL, cleanedURL)
 			if password != "" {
 				linkHTML += fmt.Sprintf(` 🔑 密码：%s`, password)
 			}
